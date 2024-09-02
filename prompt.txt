@@ -1,0 +1,60 @@
+instructions:
+Create an HTML5/JavaScript application. 
+Use only Claude Artifacts compatible libraries. 
+There will be two layouts, based upon which platform 
+the page is loaded on. The game is for two players to 
+play air-hockey. Each player has direct control of a 
+sliding paddle as the puck bounces around according 
+to the laws of physics. On a phone, the 
+interface will be touch driven. 
+And the court will be in portrait mode so that 
+players will be at opposite sides of the board. 
+Controls will be a sliding finger where force is 
+determined by forward motion of the finger and paddle 
+location is influenced by moving the finger left and right 
+on the input strip. Each player will have a separate touch 
+sensitive input strip. On a computer, the keyboard will 
+control the input. There will be two direction keys for 
+each player, a left and a right, and one 'power' button 
+which charges the force of a hit. 
+the longer you hold the button, the higher the force 
+goes up to a maximum where it slowly starts 
+to fall off if the player doesn't release. 
+Player one will use the z and x direction keys and 
+the space bar to charge. Player 2 will use the left and 
+right arrows with the up arrow to charge.
+
+ ->
+
+# Follow up promnpt :
+Read the instructions again and create the game:  Generate The instructions again:
+{restatment of the instructions}
+
+Then generate the first draft of the file.
+
+---- first draft of the file elided -----
+
+Follow up prompt: there is no space on the top of portait mode for the opponent
+
+---- second draft of the file elided -----
+
+Follow up prompt: the blue player should have a touch panel on the same side of the screen as the blue paddle. 
+   the red player should have a touch panel on the same side as the red paddle. The two input paddles should be
+    behind their respective goal lines.
+
+--- third draft of the file elided -----
+
+follow up prompt: excellent! now make the ball start moving when the first player clicks on their side of the board. 
+have it go in a random direction seeded by the clock.
+
+---- fourth draft of the file elided ----
+
+follow up prompt: Ensure that the puck never completely stops moving. that's the "air" table effect. it should add velocity as it moves
+
+--- fifth draft of the file elided ----
+
+follow up prompt: that acceleration is too high. cap it at some reasonable number
+
+--- sixth draft of the file is included as original_index.html 
+
+
