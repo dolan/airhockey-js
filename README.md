@@ -11,7 +11,7 @@ This is a two player game. Each player controls a paddle.
 Demo is hosted by github pages
 [Demo](https://dolan.github.io/airhockey-js/index.html)
 
-|| Platform||Player||Control||Description||
+| Platform|Player|Control|Description|
 | -- | -- | -- | -- |
 | Computer | Left | `Z` | Move paddle Left |
 | Computer | Left | `X` | Move paddle Right |
