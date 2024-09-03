@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Air Hockey Game</title>
     <style>
         body, html {
@@ -25,14 +25,22 @@
             pointer-events: none;
         }
         .touchArea {
-            width: 100%;
-            height: 20%;
             position: absolute;
             background: rgba(255,255,255,0.1);
             pointer-events: auto;
         }
-        #player1Touch { bottom: 0; }
-        #player2Touch { top: 0; }
+        #player1Touch {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20%;
+        }
+        #player2Touch {
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 20%;
+        }
     </style>
 </head>
 <body>
@@ -90,7 +98,7 @@
             // Initialize game objects
             player1 = {
                 x: gameWidth / 2 - paddleWidth / 2,
-                y: gameHeight - paddleHeight,
+                y: gameHeight - paddleHeight * 2,
                 width: paddleWidth,
                 height: paddleHeight,
                 speed: 0,
@@ -99,7 +107,7 @@
 
             player2 = {
                 x: gameWidth / 2 - paddleWidth / 2,
-                y: 0,
+                y: paddleHeight * 2,
                 width: paddleWidth,
                 height: paddleHeight,
                 speed: 0,
@@ -110,7 +118,6 @@
         }
 
         function update() {
-            // Update paddle positions based on input
             if (isMobile) {
                 updateMobilePaddles();
             } else {
@@ -118,42 +125,33 @@
             }
 
             if (gameStarted) {
-                // Update puck position and speed
                 updatePuck();
-
-                // Handle collisions
                 handleWallCollisions();
                 handlePaddleCollisions();
             }
         }
 
         function updatePuck() {
-            // Update position
             puck.x += puck.speedX;
             puck.y += puck.speedY;
 
-            // Calculate current speed
             let speed = Math.sqrt(puck.speedX * puck.speedX + puck.speedY * puck.speedY);
 
-            // Calculate acceleration factor (decreases as speed approaches MAX_SPEED)
             let accelerationFactor = 1 - (speed / MAX_SPEED);
             let currentAcceleration = BASE_ACCELERATION * accelerationFactor;
 
-            // Increase speed if below max
             if (speed < MAX_SPEED) {
                 let factor = 1 + currentAcceleration;
                 puck.speedX *= factor;
                 puck.speedY *= factor;
             }
 
-            // Ensure minimum speed
             if (speed < MIN_SPEED) {
                 let angle = Math.atan2(puck.speedY, puck.speedX);
                 puck.speedX = MIN_SPEED * Math.cos(angle);
                 puck.speedY = MIN_SPEED * Math.sin(angle);
             }
 
-            // Cap at maximum speed
             if (speed > MAX_SPEED) {
                 let factor = MAX_SPEED / speed;
                 puck.speedX *= factor;
@@ -164,11 +162,9 @@
         function updateMobilePaddles() {
             if (touchData.player1.active) {
                 player1.x = Math.max(0, Math.min(gameWidth - paddleWidth, touchData.player1.x - paddleWidth / 2));
-                player1.charge = Math.min(1, touchData.player1.force / 50);
             }
             if (touchData.player2.active) {
                 player2.x = Math.max(0, Math.min(gameWidth - paddleWidth, touchData.player2.x - paddleWidth / 2));
-                player2.charge = Math.min(1, touchData.player2.force / 50);
             }
         }
 
@@ -178,12 +174,6 @@
             if (keys['x']) player1.x = Math.min(gameWidth - paddleWidth, player1.x + moveSpeed);
             if (keys['ArrowLeft']) player2.x = Math.max(0, player2.x - moveSpeed);
             if (keys['ArrowRight']) player2.x = Math.min(gameWidth - paddleWidth, player2.x + moveSpeed);
-
-            if (keys[' ']) player1.charge = Math.min(1, player1.charge + 0.02);
-            else player1.charge = Math.max(0, player1.charge - 0.05);
-
-            if (keys['ArrowUp']) player2.charge = Math.min(1, player2.charge + 0.02);
-            else player2.charge = Math.max(0, player2.charge - 0.05);
         }
 
         function handleWallCollisions() {
@@ -201,14 +191,12 @@
 
         function handlePaddleCollisions() {
             if (circleRectCollision(puck, player1)) {
-                puck.speedY = -Math.abs(puck.speedY) - 2 - player1.charge * 5;
+                puck.speedY = -Math.abs(puck.speedY) - 2;
                 puck.speedX += (puck.x - (player1.x + paddleWidth / 2)) / 10;
-                player1.charge = 0;
             }
             if (circleRectCollision(puck, player2)) {
-                puck.speedY = Math.abs(puck.speedY) + 2 + player2.charge * 5;
+                puck.speedY = Math.abs(puck.speedY) + 2;
                 puck.speedX += (puck.x - (player2.x + paddleWidth / 2)) / 10;
-                player2.charge = 0;
             }
         }
 
@@ -267,10 +255,10 @@
             ctx.strokeStyle = 'white';
             ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.moveTo(0, paddleHeight);
-            ctx.lineTo(gameWidth, paddleHeight);
-            ctx.moveTo(0, gameHeight - paddleHeight);
-            ctx.lineTo(gameWidth, gameHeight - paddleHeight);
+            ctx.moveTo(0, paddleHeight * 2);
+            ctx.lineTo(gameWidth, paddleHeight * 2);
+            ctx.moveTo(0, gameHeight - paddleHeight * 2);
+            ctx.lineTo(gameWidth, gameHeight - paddleHeight * 2);
             ctx.stroke();
 
             // Draw paddles
@@ -291,10 +279,6 @@
             ctx.textAlign = 'center';
             ctx.fillText(score.player2 + ' - ' + score.player1, gameWidth / 2, gameHeight / 2);
 
-            // Draw charge bars
-            drawChargeBar(player1, 'red');
-            drawChargeBar(player2, 'blue');
-
             // Draw start message
             if (!gameStarted) {
                 ctx.fillStyle = 'white';
@@ -302,13 +286,6 @@
                 ctx.textAlign = 'center';
                 ctx.fillText('Click or touch to start', gameWidth / 2, gameHeight / 2 + 30);
             }
-        }
-
-        function drawChargeBar(player, color) {
-            ctx.fillStyle = color;
-            ctx.globalAlpha = 0.5;
-            ctx.fillRect(player.x, player.y + (player === player1 ? -10 : player.height + 5), player.width * player.charge, 5);
-            ctx.globalAlpha = 1;
         }
 
         function gameLoop() {
@@ -330,13 +307,9 @@
             const touch = e.touches[0];
             const rect = e.target.getBoundingClientRect();
             const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
             touchData[player] = {
                 active: true,
-                x: x,
-                y: y,
-                force: Math.abs(y - (touchData[player].lastY || y)),
-                lastY: y
+                x: x
             };
         }
 
@@ -352,6 +325,23 @@
         canvas.addEventListener('click', startGame);
 
         window.addEventListener('resize', setupGame);
+
+        // Prevent default touch behavior
+        document.body.addEventListener('touchstart', function(e) {
+            if (e.target == canvas) {
+                e.preventDefault();
+            }
+        }, {passive: false});
+        document.body.addEventListener('touchend', function(e) {
+            if (e.target == canvas) {
+                e.preventDefault();
+            }
+        }, {passive: false});
+        document.body.addEventListener('touchmove', function(e) {
+            if (e.target == canvas) {
+                e.preventDefault();
+            }
+        }, {passive: false});
 
         // Start the game
         setupGame();

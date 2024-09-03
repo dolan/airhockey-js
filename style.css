@@ -1,0 +1,36 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+}
+#gameCanvas {
+    display: block;
+    margin: 0 auto;
+}
+#touchControls {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+}
+.touchArea {
+    position: absolute;
+    background: rgba(255,255,255,0.1);
+    pointer-events: auto;
+}
+#player1Touch {
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 20%;
+}
+#player2Touch {
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 20%;
+}
