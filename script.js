@@ -8,10 +8,15 @@ let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.
 
 // Sound effects
 const thudSound = new Audio('./snd/thud.wav');
+thudSound.preload = 'auto';
 const clackSound = new Audio('./snd/clack.wav');
+clackSound.preload = 'auto';
 const clickSound = new Audio('./snd/click.wav');
+clickSound.preload = 'auto';
 const clickShuffleSound = new Audio('./snd/click-shuffle.wav');
+clickShuffleSound.preload = 'auto';
 const goalSound = new Audio('./snd/goal.wav');
+goalSound.preload = 'auto';
 
 function playSound(sound) {
     sound.currentTime = 0;
