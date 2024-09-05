@@ -36,6 +36,8 @@ let paddleWidth, paddleHeight, puckSize;
 let player1 = {}, player2 = {}, puck = {};
 let score = {player1: 0, player2: 0};
 let gameStarted = false;
+let puckTrail = [];
+const trailLength = 20; // Number of positions to keep in the trail
 
 // Puck physics constants
 const MIN_SPEED = 2;
@@ -106,6 +108,14 @@ function updatePuck() {
     const oldY = puck.y;
     puck.x += puck.speedX;
     puck.y += puck.speedY;
+
+    // Add current position to the trail
+    puckTrail.unshift({x: puck.x, y: puck.y});
+    
+    // Keep only the last 'trailLength' positions
+    if (puckTrail.length > trailLength) {
+        puckTrail.pop();
+    }
 
     let speed = Math.sqrt(puck.speedX * puck.speedX + puck.speedY * puck.speedY);
 
@@ -270,6 +280,22 @@ function draw() {
     ctx.moveTo(0, gameHeight - paddleHeight * 2);
     ctx.lineTo(gameWidth, gameHeight - paddleHeight * 2);
     ctx.stroke();
+
+    // Draw laser trail
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    for (let i = 0; i < puckTrail.length; i++) {
+        const alpha = 1 - (i / trailLength);
+        ctx.strokeStyle = `rgba(255, 0, 0, ${alpha})`;
+        if (i === 0) {
+            ctx.moveTo(puckTrail[i].x, puckTrail[i].y);
+        } else {
+            ctx.lineTo(puckTrail[i].x, puckTrail[i].y);
+        }
+        ctx.stroke();
+    }
 
     // Draw paddles
     ctx.fillStyle = 'red';
