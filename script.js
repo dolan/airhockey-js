@@ -6,6 +6,18 @@ const player2Touch = document.getElementById('player2Touch');
 
 let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
+// Sound effects
+const thudSound = new Audio('./snd/thud.wav');
+const clackSound = new Audio('./snd/clack.wav');
+const clickSound = new Audio('./snd/click.wav');
+const clickShuffleSound = new Audio('./snd/click-shuffle.wav');
+const goalSound = new Audio('./snd/goal.wav');
+
+function playSound(sound) {
+    sound.currentTime = 0;
+    sound.play();
+}
+
 // Game variables
 let gameWidth, gameHeight;
 let paddleWidth, paddleHeight, puckSize;
@@ -79,6 +91,7 @@ function update() {
 }
 
 function updatePuck() {
+    const oldY = puck.y;
     puck.x += puck.speedX;
     puck.y += puck.speedY;
 
@@ -104,34 +117,61 @@ function updatePuck() {
         puck.speedX *= factor;
         puck.speedY *= factor;
     }
+
+    // Check if puck changed direction without hitting a wall
+    if ((oldY < gameHeight / 2 && puck.y >= gameHeight / 2) ||
+        (oldY >= gameHeight / 2 && puck.y < gameHeight / 2)) {
+        playSound(clickShuffleSound);
+    }
 }
 
 function updateMobilePaddles() {
     if (touchData.player1.active) {
-        player1.x = Math.max(0, Math.min(gameWidth - paddleWidth, touchData.player1.x - paddleWidth / 2));
+        const newX = Math.max(0, Math.min(gameWidth - paddleWidth, touchData.player1.x - paddleWidth / 2));
+        player1.speed = newX - player1.x;
+        player1.x = newX;
     }
     if (touchData.player2.active) {
-        player2.x = Math.max(0, Math.min(gameWidth - paddleWidth, touchData.player2.x - paddleWidth / 2));
+        const newX = Math.max(0, Math.min(gameWidth - paddleWidth, touchData.player2.x - paddleWidth / 2));
+        player2.speed = newX - player2.x;
+        player2.x = newX;
     }
 }
 
 function updateDesktopPaddles() {
     const moveSpeed = 5;
-    if (keys['z']) player1.x = Math.max(0, player1.x - moveSpeed);
-    if (keys['x']) player1.x = Math.min(gameWidth - paddleWidth, player1.x + moveSpeed);
-    if (keys['ArrowLeft']) player2.x = Math.max(0, player2.x - moveSpeed);
-    if (keys['ArrowRight']) player2.x = Math.min(gameWidth - paddleWidth, player2.x + moveSpeed);
+    player1.speed = 0;
+    player2.speed = 0;
+    if (keys['z']) {
+        player1.x = Math.max(0, player1.x - moveSpeed);
+        player1.speed = -moveSpeed;
+    }
+    if (keys['x']) {
+        player1.x = Math.min(gameWidth - paddleWidth, player1.x + moveSpeed);
+        player1.speed = moveSpeed;
+    }
+    if (keys['ArrowLeft']) {
+        player2.x = Math.max(0, player2.x - moveSpeed);
+        player2.speed = -moveSpeed;
+    }
+    if (keys['ArrowRight']) {
+        player2.x = Math.min(gameWidth - paddleWidth, player2.x + moveSpeed);
+        player2.speed = moveSpeed;
+    }
 }
 
 function handleWallCollisions() {
     if (puck.x - puck.radius < 0 || puck.x + puck.radius > gameWidth) {
         puck.speedX *= -1;
+        playSound(thudSound);
     }
     if (puck.y - puck.radius < 0) {
         score.player1++;
+        playSound(goalSound);
         resetPuck();
     } else if (puck.y + puck.radius > gameHeight) {
         score.player2++;
+        playSound(goalSound);
         resetPuck();
     }
 }
@@ -140,10 +180,21 @@ function handlePaddleCollisions() {
     if (circleRectCollision(puck, player1)) {
         puck.speedY = -Math.abs(puck.speedY) - 2;
         puck.speedX += (puck.x - (player1.x + paddleWidth / 2)) / 10;
+        playPaddleHitSound(player1);
     }
     if (circleRectCollision(puck, player2)) {
         puck.speedY = Math.abs(puck.speedY) + 2;
         puck.speedX += (puck.x - (player2.x + paddleWidth / 2)) / 10;
+        playPaddleHitSound(player2);
+    }
+}
+
+function playPaddleHitSound(player) {
+    const paddleSpeed = Math.abs(player.speed);
+    if (paddleSpeed > 3) {
+        playSound(clackSound);
+    } else {
+        playSound(clickSound);
     }
 }
 
