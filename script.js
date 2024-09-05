@@ -48,6 +48,11 @@ const BASE_ACCELERATION = 0.005;
 let keys = {};
 let touchData = {player1: {}, player2: {}};
 
+// Particle effect variables
+let particles = [];
+const particleCount = 20;
+const particleLife = 100; // Number of frames a particle lives
+
 function setupGame() {
     gameWidth = window.innerWidth;
     gameHeight = window.innerHeight;
@@ -101,6 +106,17 @@ function update() {
         updatePuck();
         handleWallCollisions();
         handlePaddleCollisions();
+    }
+
+    // Update particles
+    for (let i = 0; i < particles.length; i++) {
+        particles[i].x += particles[i].speedX;
+        particles[i].y += particles[i].speedY;
+        particles[i].life--;
+        if (particles[i].life <= 0) {
+            particles.splice(i, 1);
+            i--;
+        }
     }
 }
 
@@ -190,10 +206,12 @@ function handleWallCollisions() {
     if (puck.y - puck.radius < 0) {
         score.player1++;
         playSound(goalSound);
+        createGoalParticles();
         resetPuck();
     } else if (puck.y + puck.radius > gameHeight) {
         score.player2++;
         playSound(goalSound);
+        createGoalParticles();
         resetPuck();
     }
 }
@@ -245,6 +263,7 @@ function resetPuck() {
         speedY: 0
     };
     gameStarted = false;
+    puckTrail = []; // Reset the laser trail
 }
 
 function startGame() {
@@ -255,6 +274,20 @@ function startGame() {
         const angle = random * Math.PI * 2;
         puck.speedX = MIN_SPEED * Math.cos(angle);
         puck.speedY = MIN_SPEED * Math.sin(angle);
+    }
+}
+
+function createGoalParticles() {
+    for (let i = 0; i < particleCount; i++) {
+        particles.push({
+            x: puck.x,
+            y: puck.y,
+            radius: puckSize / 4,
+            speedX: (Math.random() - 0.5) * 10,
+            speedY: (Math.random() - 0.5) * 10,
+            life: particleLife,
+            color: 'red' // Or any other color you like
+        });
     }
 }
 
@@ -308,6 +341,15 @@ function draw() {
     ctx.beginPath();
     ctx.arc(puck.x, puck.y, puck.radius, 0, Math.PI * 2);
     ctx.fill();
+
+    // Draw particles
+    for (let i = 0; i < particles.length; i++) {
+        const particle = particles[i];
+        ctx.fillStyle = particle.color;
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+        ctx.fill();
+    }
 
     // Draw score
     ctx.fillStyle = 'white';
