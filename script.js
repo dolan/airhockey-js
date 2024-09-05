@@ -19,6 +19,13 @@ const goalSound = new Audio('./snd/goal.wav');
 goalSound.preload = 'auto';
 
 function playSound(sound) {
+    // Stop all currently playing sounds
+    [thudSound, clackSound, clickSound, clickShuffleSound, goalSound].forEach(s => {
+        s.pause();
+        s.currentTime = 0;
+    });
+    
+    // Play the new sound
     sound.currentTime = 0;
     sound.play();
 }
